@@ -1,68 +1,60 @@
-#include <windows.h>
-#include <iostream>
+#include<windows.h>
+#include<iostream>
+#include <GL/gl.h>
 #include <GL/glut.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <math.h>
 #include <cmath>
-using namespace std;
+#include<cstdio>
+#include "glutil.h"
 
-GLuint sceneTexture;
-GLuint loadTexture(const char* filename, int* outWidth = NULL, int* outHeight = NULL) {
-    int width, height, channels;
-    unsigned char* image = stbi_load(filename, &width, &height, &channels, 0);
-    if (!image) {
-        printf("Failed to load image: %s\n", filename);
-        return 0;
-    }
+/* Handler for window-repaint event. Call back when the window first appears and
+whenever the window needs to be re-painted. */
+void background(){
+glColor3d(1.0,1.0,1.0);
+glBegin(GL_QUADS);            // These vertices form a closed polygon
 
-    if (outWidth) *outWidth = width;
-    if (outHeight) *outHeight = height;
+	glVertex2f(0,1000);
+	glVertex2f(0,400);
+	glVertex2f(1900,400);
+	glVertex2f(1900,1000);
 
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    stbi_image_free(image);
-    return textureID;
+	glEnd();
+	ApplyTexture(0,400,1900,400,1900,1000,0,1000,textures[0].textureID);
+
+
 }
+
 void display() {
-    glClear(GL_COLOR_BUFFER_BIT);
-    glLoadIdentity();
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // Set background color to black and opaque
+	glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
+  // Clear the color buffer with current clearing color
 
-    // Enable texturing
-    glEnable(GL_TEXTURE_2D);
+background();
 
-    // Draw background
-    glBindTexture(GL_TEXTURE_2D, sceneTexture);
-    glBegin(GL_QUADS);
-    glTexCoord2f(0.0f, 0.0f); glVertex2f(0.0f, 0.0f);
-    glTexCoord2f(1.0f, 0.0f); glVertex2f(0.5f, 0.0f);
-    glTexCoord2f(1.0f, 1.0f); glVertex2f(0.5f, 0.5f);
-    glTexCoord2f(0.0f, 1.0f); glVertex2f(0.0f, 0.5f);
-    glEnd();
+glutSwapBuffers();
 
-    glutSwapBuffers();
+	  // Render now
 }
-void init() {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    stbi_set_flip_vertically_on_load(true);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    sceneTexture = loadTexture("truck.png");
-}
+/* Main function: GLUT runs as a console application starting at main()  */
 int main(int argc, char** argv) {
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-    glutInitWindowSize(800, 600);
-    glutCreateWindow("Tank Animation with Flames on Buildings");
+	glutInit(&argc, argv);          // Initialize GLUT
+	 // Create window with the given title
+	 glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(320, 320);   // Set the window's initial width & height
+	//glutInitWindowPosition(50, 50); // Position the window's initial top-left corner
+	//glutFullScreen();
+	glutCreateWindow("PROJECT");
+	loadImageAndStore("E:/SEM 8/COMPUTER GRAPHICS/third.bmp");
+	glutDisplayFunc(display);       // Register callback handler for window re-paint event
+     glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+gluOrtho2D(0, 1900, 0, 1000);
+	                  // Our own OpenGL initialization
 
-    init();
-    glutDisplayFunc(display);
-    glutMainLoop();
-    return 0;
+	glMatrixMode(GL_MODELVIEW);  // Switch back for rendering
+glLoadIdentity();
+	glutMainLoop();                 // Enter the event-processing loop
+	return 0;
+
 }
